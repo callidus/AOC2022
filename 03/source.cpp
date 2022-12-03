@@ -46,12 +46,13 @@ class Pack{
 
       for(auto ca : sA) {
         for(auto cb : sB) {
-          for(auto cc : sC) {
-            if(cc > cb || cb > ca) {
-              break;
-            }
-            if(cc == cb && cb == ca) {
-              return cc;
+          if(cb > ca) break;
+          if( cb == ca) {
+            for(auto cc : sC) {
+              if(cc > cb) break;
+              if(cc == cb) {
+                return cc;
+              }
             }
           }
         }
