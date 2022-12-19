@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <limits.h>
 
 #define INPUT "input.txt"
 #define D 32
@@ -16,11 +14,6 @@ void readIt() {
 
 	memset(shape, 0, D * D * D);
 	while(fscanf(f, "%i,%i,%i\n", data, data + 1, data + 2) == 3) {
-		assert(data[0] < D);
-		assert(data[1] < D);
-		assert(data[2] < D);
-		
-		printf("%i,%i,%i\n", data[0], data[1], data[2]);
 		shape[data[0]][data[1]][data[2]] = 1;
 	}
 	fclose(f);
@@ -32,7 +25,7 @@ void floodIt(int x, int y, int z) {
 	   z<0 || z == D ||
 	   shape[x][y][z] != 0)
 		return;
-	
+
 	shape[x][y][z] = 2;
 	floodIt(x+1, y, z);
 	floodIt(x-1, y, z);
@@ -44,49 +37,29 @@ void floodIt(int x, int y, int z) {
 }
 
 int rayCast() {
-	int x,y,k;
-	int s,t,n = 0;
+	char s[3],t[3];
+	int x,y,k, i, n = 0;
 
 	for(y=0; y<D; ++y) {
 		for(x=0; x<D; ++x) {
-			t = s = 2; // assume steam
+			memset(s, 2, 3); // start in steam
+			memset(t, 2, 3);
 			for(k=0; k<D; ++k) {
-				t = shape[x][y][k];
-				n += (t != s && t && s) ? 1 : 0;
-				s = t;
+				t[0] = shape[x][y][k];
+				t[1] = shape[y][k][x];
+				t[2] = shape[k][x][y];
+				for(i=0;i<3;++i) {
+					n += (t[i] != s[i] && t[i] && s[i]) ? 1 : 0;
+					s[i] = t[i];
+				}
 			}
 		}
 	}
-
-	for(y=0; y<D; ++y) {
-		for(k=0; k<D; ++k) {
-			t = s = 2; // assume steam
-			for(x=0; x<D; ++x) {
-				t = shape[x][y][k];
-				n += (t != s && t && s) ? 1 : 0;
-				s = t;
-			}
-		}
-	}
-
-	for(k=0; k<D; ++k) {
-		for(x=0; x<D; ++x) {
-			t = s = 2; // assume steam
-			for(y=0; y<D; ++y) {
-				t = shape[x][y][k];
-				n += (t != s && t && s) ? 1 : 0;
-				s = t;
-			}
-		}
-	}
-
 	return n;
 }
 
 int main(int argc, char** argv) {
-	int i;
 	readIt();
 	floodIt(0,0,0);
-	i = rayCast();
-	printf("got %i\n", i);
+	printf("got %i\n", rayCast());
 }
